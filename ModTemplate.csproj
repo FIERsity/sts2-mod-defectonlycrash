@@ -4,6 +4,7 @@
         <ImplicitUsings>true</ImplicitUsings>
         <Nullable>NullableChecks</Nullable> <!--Makes code analysis regarding null values stricter.-->
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DefaultItemExcludes>packages\**</DefaultItemExcludes>
     </PropertyGroup>
 
     <!-- OS Detection -->
@@ -32,7 +33,7 @@
         <Sts2DataDir Condition="'$(Sts2DataDir)' == ''">$(Sts2Path)/data_sts2_linuxbsd_x86_64</Sts2DataDir>
         <GodotPath Condition="'$(GodotPath)' == ''">$(SteamLibraryPath)/common/Godot Engine/godot.x11.opt.tools.64</GodotPath>
     </PropertyGroup>
-    <!-- // TODO: Megadot is version 4.5.1, and the game won't load pck if godot is newer. -->
+    <!-- // NOTE: Megadot is version 4.5.1, and the game won't load pck if godot is newer. -->
 
     <!-- macOS // TODO -->
     <PropertyGroup Condition="'$(IsOSX)' == 'true'">
@@ -85,6 +86,11 @@
     <Target Name="CopyToModsFolderOnBuild" AfterTargets="PostBuildEvent">
         <Message Text="Copying .dll to mods folder." Importance="high" />
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(Sts2Path)\mods\" />
+        <Message Text="Copying BaseLib to mods folder." Importance="high" />
+        <ItemGroup>
+            <BaseLibFiles Include="packages/alchyr.sts2.baselib/**/lib/**/BaseLib.dll;packages/alchyr.sts2.baselib/**/Content/BaseLib.pck"/>
+        </ItemGroup>
+        <Copy SourceFiles="@(BaseLibFiles)" DestinationFolder="$(Sts2Path)\mods\" />
     </Target>
 
     <Target Name="GodotPublish" AfterTargets="Publish" Condition="'$(GodotPath)' != '' and Exists('$(GodotPath)') and '$(IsInnerGodotExport)' != 'true'">
