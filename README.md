@@ -6,6 +6,20 @@ only Defect is allowed.
 `DefectOnlyCrash` 是一个《Slay the Spire 2》模组，核心规则只有一条：
 只允许使用故障机器人。
 
+## Note
+
+This mod was mainly made through vibe coding.
+
+The author only has access to macOS hardware and has not yet been able to do a
+real Windows playtest. If you try it on Windows, feedback is very welcome.
+
+## 说明
+
+这个模组主要是通过 vibe coding 完成的。
+
+作者目前只有 Mac 电脑，还没有做过真正的 Windows 实机测试。如果你在
+Windows 上试用了它，非常欢迎反馈结果。
+
 ## Overview
 
 - Automatically unlocks Defect when the mod loads
