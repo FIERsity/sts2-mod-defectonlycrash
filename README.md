@@ -2,6 +2,30 @@
 
 This repository is a reusable Slay the Spire 2 mod development base.
 
+## Current Release
+
+This repository currently ships a standalone Windows-targeted mod project:
+`projects/DefectOnlyCrash`
+
+- Auto-unlocks Defect
+- Allows Defect runs
+- Intentionally terminates the game if any other character starts a run
+
+Downloadable packaged build:
+GitHub Releases asset `DefectOnlyCrash-windows-dropin.zip`
+
+## 当前发布内容
+
+这个仓库当前提供一个可独立分发的 Windows 模组项目：
+`projects/DefectOnlyCrash`
+
+- 自动解锁故障机器人
+- 使用故障机器人正常游玩
+- 使用其他角色开局时，游戏会被故意终止
+
+可直接下载的打包成品：
+GitHub Releases 附件 `DefectOnlyCrash-windows-dropin.zip`
+
 It currently contains one working example feature set:
 
 - Click the top bar HP display to fully heal.
