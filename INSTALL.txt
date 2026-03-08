@@ -1,15 +1,23 @@
 DefectOnlyCrash
 
-Windows install:
+English
+
+Install:
 1. Open your Slay the Spire 2 game directory.
 2. Create a folder named mods if it does not already exist.
-3. Copy every file from this folder into mods.
-4. Start the game.
+3. Extract this package.
+4. Copy every extracted file into mods.
+5. Start the game.
+
+Usage:
+- Defect is auto-unlocked when the mod loads.
+- Defect works normally.
+- Any other character will intentionally terminate the game once the run starts.
 
 Important:
 - Keep the .dll and .pck filenames unchanged.
 - Do not copy just one file. Copy the whole package contents.
-- The game may show a one-time mod warning and use a separate modded save path.
+- The game may show a one-time mod warning and may use a separate modded save path.
 
 Package contents:
 - DefectOnlyCrash.dll
@@ -17,7 +25,27 @@ Package contents:
 - mod_manifest.json
 - mod_image.png
 
-Behavior:
-- Defect is auto-unlocked when the mod loads.
-- Defect works normally.
-- Any other character will intentionally terminate the game once the run starts.
+中文
+
+安装：
+1. 打开《Slay the Spire 2》游戏目录。
+2. 如果还没有 mods 文件夹，就手动创建一个。
+3. 解压这个压缩包。
+4. 将解压后的所有文件复制到 mods 文件夹中。
+5. 启动游戏。
+
+使用：
+- 模组加载后会自动解锁故障机器人。
+- 选择故障机器人时可以正常游玩。
+- 选择任何其他角色开局时，游戏会被故意关闭。
+
+注意：
+- 不要修改 .dll 和 .pck 的文件名。
+- 不要只复制单个文件，请复制整个包里的全部内容。
+- 游戏可能会弹出一次 mod 警告，也可能会使用单独的 modded 存档路径。
+
+包内容：
+- DefectOnlyCrash.dll
+- DefectOnlyCrash.pck
+- mod_manifest.json
+- mod_image.png
