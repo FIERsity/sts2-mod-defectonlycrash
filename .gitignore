@@ -1,4 +1,5 @@
 .godot/
+packages/
 bin/
 /android/
 .git/
@@ -10,3 +11,7 @@ Properties/
 *.import
 *.uid
 *.user
+*.local.props
+*.DotSettings
+dist/
+*.zip

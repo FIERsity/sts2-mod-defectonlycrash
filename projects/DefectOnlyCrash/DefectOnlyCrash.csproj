@@ -1,0 +1,53 @@
+<Project Sdk="Godot.NET.Sdk/4.5.1">
+    <Import Project="../../ModTemplate.local.props" Condition="Exists('../../ModTemplate.local.props')" />
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>true</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AssemblyName>DefectOnlyCrash</AssemblyName>
+        <RootNamespace>DefectOnlyCrash</RootNamespace>
+        <PackageOutputDir>$(MSBuildProjectDirectory)/dist/windows-dropin</PackageOutputDir>
+        <Sts2ModsDir>$(PackageOutputDir)</Sts2ModsDir>
+        <GodotExportPreset>Windows Desktop</GodotExportPreset>
+        <CopyBaseLibToMods>false</CopyBaseLibToMods>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="sts2">
+            <HintPath>$(Sts2DataDir)/sts2.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="INSTALL.txt" />
+        <None Include="mod_manifest.json" />
+        <None Include="project.godot" />
+        <None Include="README.md" />
+        <None Include="assets/**" />
+    </ItemGroup>
+
+    <Target Name="CopyToPackageFolderOnBuild" AfterTargets="PostBuildEvent">
+        <MakeDir Directories="$(PackageOutputDir)" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PackageOutputDir)" />
+        <Copy SourceFiles="INSTALL.txt" DestinationFiles="$(PackageOutputDir)/INSTALL.txt" />
+        <Copy SourceFiles="mod_manifest.json" DestinationFiles="$(PackageOutputDir)/mod_manifest.json" />
+        <Copy SourceFiles="assets/mod_image.png" DestinationFiles="$(PackageOutputDir)/mod_image.png" Condition="Exists('assets/mod_image.png')" />
+    </Target>
+
+    <Target Name="GodotPublish" AfterTargets="Publish" Condition="'$(GodotPath)' != '' and Exists('$(GodotPath)') and '$(IsInnerGodotExport)' != 'true'">
+        <MakeDir Directories="$(PackageOutputDir)" />
+        <Exec Command="&quot;$(GodotPath)&quot; --headless --path &quot;$(MSBuildProjectDirectory)&quot; --export-pack &quot;$(GodotExportPreset)&quot; &quot;$(PackageOutputDir)/$(AssemblyName).pck&quot;"
+              EnvironmentVariables="IsInnerGodotExport=true;MSBUILDDISABLENODEREUSE=1"
+              ContinueOnError="WarnAndContinue" />
+    </Target>
+
+    <Target Name="GodotPublishSkipped" AfterTargets="Publish" Condition="'$(GodotPath)' == '' or !Exists('$(GodotPath)')">
+        <Message Text="Skipping Godot .pck export because GodotPath is not configured." Importance="high" />
+    </Target>
+
+    <Target Name="CleanPackageArtifacts" AfterTargets="Publish">
+        <Delete Files="$(PackageOutputDir)/mod_image.png.import" Condition="Exists('$(PackageOutputDir)/mod_image.png.import')" />
+    </Target>
+</Project>

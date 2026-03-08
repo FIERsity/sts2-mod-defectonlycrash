@@ -1,0 +1,23 @@
+DefectOnlyCrash
+
+Windows install:
+1. Open your Slay the Spire 2 game directory.
+2. Create a folder named mods if it does not already exist.
+3. Copy every file from this folder into mods.
+4. Start the game.
+
+Important:
+- Keep the .dll and .pck filenames unchanged.
+- Do not copy just one file. Copy the whole package contents.
+- The game may show a one-time mod warning and use a separate modded save path.
+
+Package contents:
+- DefectOnlyCrash.dll
+- DefectOnlyCrash.pck
+- mod_manifest.json
+- mod_image.png
+
+Behavior:
+- Defect is auto-unlocked when the mod loads.
+- Defect works normally.
+- Any other character will intentionally terminate the game once the run starts.

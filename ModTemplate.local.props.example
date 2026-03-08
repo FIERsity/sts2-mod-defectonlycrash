@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <!-- Override these values on your machine instead of editing ModTemplate.csproj. -->
+    <TemplateNullableSetting>disable</TemplateNullableSetting>
+    <TemplatePublicizeSetting>false</TemplatePublicizeSetting>
+    <SteamLibraryPath>/Volumes/DataHub/SteamLibrary/steamapps</SteamLibraryPath>
+    <Sts2Path>/Volumes/DataHub/SteamLibrary/steamapps/common/Slay the Spire 2/SlayTheSpire2.app</Sts2Path>
+    <Sts2ResourcesDir>/Volumes/DataHub/SteamLibrary/steamapps/common/Slay the Spire 2/SlayTheSpire2.app/Contents/Resources</Sts2ResourcesDir>
+    <Sts2DataDir>/Volumes/DataHub/SteamLibrary/steamapps/common/Slay the Spire 2/SlayTheSpire2.app/Contents/Resources/data_sts2_macos_arm64</Sts2DataDir>
+    <Sts2ModsDir>/Volumes/DataHub/SteamLibrary/steamapps/common/Slay the Spire 2/SlayTheSpire2.app/Contents/MacOS/mods</Sts2ModsDir>
+    <GodotPath>/full/path/to/MegaDot-or-Godot-4.5.1-mono</GodotPath>
+    <GodotExportPreset>macOS</GodotExportPreset>
+  </PropertyGroup>
+</Project>

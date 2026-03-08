@@ -1,5 +1,4 @@
 using Godot;
-using HarmonyLib;
 using MegaCrit.Sts2.Core.Modding;
 
 namespace ModTemplate;
@@ -13,8 +12,14 @@ public partial class MainFile : Node
 
     public static void Initialize()
     {
-        Harmony harmony = new(ModId);
+        if (Engine.GetMainLoop() is not SceneTree tree || tree.Root == null)
+        {
+            Logger.Error("Could not install cheat overlay because the scene tree was unavailable.");
+            return;
+        }
 
-        harmony.PatchAll();
+        CheatHealOverlay overlay = new();
+        tree.Root.CallDeferred(Node.MethodName.AddChild, overlay);
+        Logger.Info("ModTemplate cheat overlay installed.");
     }
 }

@@ -1,8 +1,11 @@
 ﻿<Project Sdk="Godot.NET.Sdk/4.5.1">
+    <Import Project="ModTemplate.local.props" Condition="Exists('ModTemplate.local.props')" />
+
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>true</ImplicitUsings>
-        <Nullable>NullableChecks</Nullable> <!--Makes code analysis regarding null values stricter.-->
+        <TemplateNullableSetting Condition="'$(TemplateNullableSetting)' == ''">NullableChecks</TemplateNullableSetting>
+        <Nullable>$(TemplateNullableSetting)</Nullable> <!--Makes code analysis regarding null values stricter.-->
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <DefaultItemExcludes>packages\**</DefaultItemExcludes>
     </PropertyGroup>
@@ -15,6 +18,14 @@
         <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
         <IsLinux Condition="$([MSBuild]::IsOSPlatform('Linux'))">true</IsLinux>
         <IsOSX Condition="$([MSBuild]::IsOSPlatform('OSX'))">true</IsOSX>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Sts2ModsDir Condition="'$(Sts2ModsDir)' == ''">$(Sts2Path)/mods</Sts2ModsDir>
+        <GodotExportPreset Condition="'$(GodotExportPreset)' == '' and '$(IsWindows)' == 'true'">Windows Desktop</GodotExportPreset>
+        <GodotExportPreset Condition="'$(GodotExportPreset)' == '' and '$(IsLinux)' == 'true'">Linux/X11</GodotExportPreset>
+        <GodotExportPreset Condition="'$(GodotExportPreset)' == '' and '$(IsOSX)' == 'true'">macOS</GodotExportPreset>
+        <CopyBaseLibToMods Condition="'$(CopyBaseLibToMods)' == ''">true</CopyBaseLibToMods>
     </PropertyGroup>
 
     <!-- Windows -->
@@ -35,12 +46,14 @@
     </PropertyGroup>
     <!-- // NOTE: Megadot is version 4.5.1, and the game won't load pck if godot is newer. -->
 
-    <!-- macOS // TODO -->
     <PropertyGroup Condition="'$(IsOSX)' == 'true'">
+        <MacArchitecture Condition="'$(MacArchitecture)' == ''">$([System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString().ToLowerInvariant())</MacArchitecture>
         <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">$(HOME)/Library/Application Support/Steam/steamapps</SteamLibraryPath>
-        <Sts2Path Condition="'$(Sts2Path)' == ''">$(SteamLibraryPath)/common/Slay the Spire 2</Sts2Path>
-        <Sts2DataDir Condition="'$(Sts2DataDir)' == ''">$(Sts2Path)/data_sts2_macos_x86_64</Sts2DataDir>
-        <GodotPath Condition="'$(GodotPath)' == ''">$(HOME)/</GodotPath>
+        <Sts2Path Condition="'$(Sts2Path)' == ''">$(SteamLibraryPath)/common/Slay the Spire 2/SlayTheSpire2.app</Sts2Path>
+        <Sts2ResourcesDir Condition="'$(Sts2ResourcesDir)' == ''">$(Sts2Path)/Contents/Resources</Sts2ResourcesDir>
+        <Sts2DataDir Condition="'$(Sts2DataDir)' == '' and '$(MacArchitecture)' == 'arm64'">$(Sts2ResourcesDir)/data_sts2_macos_arm64</Sts2DataDir>
+        <Sts2DataDir Condition="'$(Sts2DataDir)' == '' and '$(MacArchitecture)' != 'arm64'">$(Sts2ResourcesDir)/data_sts2_macos_x86_64</Sts2DataDir>
+        <Sts2ModsDir Condition="'$(Sts2ModsDir)' == ''">$(Sts2Path)/Contents/MacOS/mods</Sts2ModsDir>
     </PropertyGroup>
 
 
@@ -50,20 +63,21 @@
         </Reference>
         <Reference Include="sts2">
             <HintPath>$(Sts2DataDir)/sts2.dll</HintPath>
-            <Publicize>PublicizeSts</Publicize> <!--Allows private/protected field references but may cause errors.-->
+            <TemplatePublicizeSetting Condition="'$(TemplatePublicizeSetting)' == ''">PublicizeSts</TemplatePublicizeSetting>
+            <Publicize>$(TemplatePublicizeSetting)</Publicize> <!--Allows private/protected field references but may cause errors.-->
         </Reference>
 
         <PackageReference Include="Alchyr.Sts2.BaseLib" Version="*" />
         <PackageReference Include="Alchyr.Sts2.ModAnalyzers" Version="*" />
-        <AdditionalFiles Include="ModTemplate\localization\**\*.json"/>
+        <AdditionalFiles Include="content\localization\**\*.json"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="ModTemplate\**" />
+        <Compile Remove="content\**" />
         <Compile Remove="materials\**" />
         <Compile Remove="shaders\**" />
         <Compile Remove="images\**" />
-        <EmbeddedResource Remove="ModTemplate\**" />
+        <EmbeddedResource Remove="content\**" />
         <EmbeddedResource Remove="materials\**" />
         <EmbeddedResource Remove="shaders\**" />
         <EmbeddedResource Remove="images\**" />
@@ -71,9 +85,13 @@
 
     <ItemGroup>
         <None Include=".gitignore" />
+        <None Include="AGENTS.md" />
         <None Include="mod_manifest.json" />
         <None Include="project.godot"/>
-        <None Include="ModTemplate\**" />
+        <None Include="README.md" />
+        <None Include="docs\**" />
+        <None Include="assets\**" />
+        <None Include="content\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -84,18 +102,23 @@
     </ItemGroup>
 
     <Target Name="CopyToModsFolderOnBuild" AfterTargets="PostBuildEvent">
+        <MakeDir Directories="$(Sts2ModsDir)" Condition="'$(Sts2ModsDir)' != ''" />
         <Message Text="Copying .dll to mods folder." Importance="high" />
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(Sts2Path)\mods\" />
-        <Message Text="Copying BaseLib to mods folder." Importance="high" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(Sts2ModsDir)" />
+        <Message Text="Copying mod manifest and image to mods folder." Importance="high" />
+        <Copy SourceFiles="mod_manifest.json" DestinationFiles="$(Sts2ModsDir)/mod_manifest.json" />
+        <Copy SourceFiles="assets/mod_image.png" DestinationFiles="$(Sts2ModsDir)/mod_image.png" Condition="Exists('assets/mod_image.png')" />
+        <Message Text="Copying BaseLib to mods folder." Importance="high" Condition="'$(CopyBaseLibToMods)' == 'true'" />
         <ItemGroup>
-            <BaseLibFiles Include="packages/alchyr.sts2.baselib/**/lib/**/BaseLib.dll;packages/alchyr.sts2.baselib/**/Content/BaseLib.pck"/>
+            <BaseLibFiles Include="packages/alchyr.sts2.baselib/**/lib/**/BaseLib.dll;packages/alchyr.sts2.baselib/**/Content/BaseLib.pck" Condition="'$(CopyBaseLibToMods)' == 'true'"/>
         </ItemGroup>
-        <Copy SourceFiles="@(BaseLibFiles)" DestinationFolder="$(Sts2Path)\mods\" />
+        <Copy SourceFiles="@(BaseLibFiles)" DestinationFolder="$(Sts2ModsDir)" Condition="'$(CopyBaseLibToMods)' == 'true'" />
     </Target>
 
     <Target Name="GodotPublish" AfterTargets="Publish" Condition="'$(GodotPath)' != '' and Exists('$(GodotPath)') and '$(IsInnerGodotExport)' != 'true'">
+        <MakeDir Directories="$(Sts2ModsDir)" Condition="'$(Sts2ModsDir)' != ''" />
         <Message Text="Exporting Godot .pck to mods folder" Importance="high"/>
-        <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;Windows Desktop&quot; &quot;$(Sts2Path)/mods/$(MSBuildProjectName).pck&quot;"
+        <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;$(GodotExportPreset)&quot; &quot;$(Sts2ModsDir)/$(MSBuildProjectName).pck&quot;"
               EnvironmentVariables="IsInnerGodotExport=true;MSBUILDDISABLENODEREUSE=1"
               ContinueOnError="WarnAndContinue"/>
     </Target>
