@@ -1,5 +1,6 @@
 <Project Sdk="Godot.NET.Sdk/4.5.1">
-    <Import Project="../../ModTemplate.local.props" Condition="Exists('../../ModTemplate.local.props')" />
+    <Import Project="DefectOnlyCrash.local.props" Condition="Exists('DefectOnlyCrash.local.props')" />
+    <Import Project="ModTemplate.local.props" Condition="!Exists('DefectOnlyCrash.local.props') and Exists('ModTemplate.local.props')" />
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>

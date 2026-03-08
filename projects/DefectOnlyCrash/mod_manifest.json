@@ -1,7 +1,0 @@
-{
-  "pck_name": "DefectOnlyCrash",
-  "name": "Only Defect",
-  "author": "SAN",
-  "description": "Crash the game when the local player starts a run as any character other than Defect.",
-  "version": "0.1"
-}
