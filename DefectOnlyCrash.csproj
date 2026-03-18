@@ -7,6 +7,8 @@
         <ImplicitUsings>true</ImplicitUsings>
         <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <Prefer32Bit>false</Prefer32Bit>
         <AssemblyName>DefectOnlyCrash</AssemblyName>
         <RootNamespace>DefectOnlyCrash</RootNamespace>
         <PackageOutputDir>$(MSBuildProjectDirectory)/dist/windows-dropin</PackageOutputDir>
