@@ -3,6 +3,7 @@ using System.Reflection;
 using Godot;
 using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Players;
+using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Characters;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Runs;
@@ -15,6 +16,8 @@ namespace DefectOnlyCrash;
 public partial class CharacterCrashMonitor : Node
 {
     private static readonly FieldInfo RunStateField = typeof(NRun).GetField("_state", BindingFlags.Instance | BindingFlags.NonPublic);
+    private static readonly string DefectEpochId = EpochModel.GetId<Defect1Epoch>();
+    private static readonly ModelId DefectCharacterId = ModelDb.Character<Defect>().Id;
 
     private bool _unlockAttempted;
     private bool _hasTriggered;
@@ -48,7 +51,12 @@ public partial class CharacterCrashMonitor : Node
         }
 
         NRun runNode = NRun.Instance;
-        RunState runState = (RunState)RunStateField?.GetValue(runNode);
+        if (runNode == null || RunStateField == null)
+        {
+            return;
+        }
+
+        RunState runState = (RunState)RunStateField.GetValue(runNode);
         if (runState == null)
         {
             return;
@@ -79,21 +87,36 @@ public partial class CharacterCrashMonitor : Node
         }
 
         SaveManager saveManager = SaveManager.Instance;
-        string defectEpochId = EpochModel.GetId<Defect1Epoch>();
-        if (saveManager.Progress == null)
+        if (!IsSaveManagerReady(saveManager) || saveManager.Progress == null)
         {
             return;
         }
 
-        if (saveManager.Progress.Epochs.Any(epoch => epoch.Id == defectEpochId && epoch.State >= EpochState.Revealed))
+        bool defectRevealed = saveManager.Progress.Epochs.Any(epoch => epoch.Id == DefectEpochId && epoch.State >= EpochState.Revealed);
+        bool pendingUnlockQueued = saveManager.Progress.PendingCharacterUnlock == DefectCharacterId;
+        if (defectRevealed && pendingUnlockQueued)
         {
             _unlockAttempted = true;
             return;
         }
 
-        saveManager.Progress.ObtainEpochOverride(defectEpochId, EpochState.Revealed);
+        saveManager.ObtainEpochOverride(DefectEpochId, EpochState.Revealed);
+        saveManager.Progress.PendingCharacterUnlock = DefectCharacterId;
         saveManager.SaveProgressFile();
         _unlockAttempted = true;
-        MainFile.Logger.Info("Auto-unlocked Defect by revealing Defect1Epoch.");
+        MainFile.Logger.Info("Auto-unlocked Defect by revealing Defect1Epoch and queueing the character unlock.");
+    }
+
+    private static bool IsSaveManagerReady(SaveManager saveManager)
+    {
+        try
+        {
+            _ = saveManager.CurrentProfileId;
+            return true;
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
     }
 }
