@@ -18,8 +18,8 @@ public partial class CharacterCrashMonitor : Node
     private static readonly FieldInfo RunStateField = typeof(NRun).GetField("_state", BindingFlags.Instance | BindingFlags.NonPublic);
     private static readonly string DefectEpochId = EpochModel.GetId<Defect1Epoch>();
     private static readonly ModelId DefectCharacterId = ModelDb.Character<Defect>().Id;
-    private bool _unlockAttempted;
     private bool _hasTriggered;
+    private int? _unlockCheckedProfileId;
 
     public override void _Ready()
     {
@@ -35,7 +35,6 @@ public partial class CharacterCrashMonitor : Node
         }
         catch (Exception ex)
         {
-            _unlockAttempted = true;
             MainFile.Logger.Error($"Failed to auto-unlock Defect: {ex}");
         }
 
@@ -80,13 +79,14 @@ public partial class CharacterCrashMonitor : Node
 
     private void EnsureDefectUnlocked()
     {
-        if (_unlockAttempted)
+        SaveManager saveManager = SaveManager.Instance;
+        if (!IsSaveManagerReady(saveManager) || saveManager.Progress == null)
         {
             return;
         }
 
-        SaveManager saveManager = SaveManager.Instance;
-        if (!IsSaveManagerReady(saveManager) || saveManager.Progress == null)
+        int currentProfileId = saveManager.CurrentProfileId;
+        if (_unlockCheckedProfileId == currentProfileId)
         {
             return;
         }
@@ -95,13 +95,13 @@ public partial class CharacterCrashMonitor : Node
         if (defectRevealed)
         {
             ClearStalePendingUnlock(saveManager);
-            _unlockAttempted = true;
+            _unlockCheckedProfileId = currentProfileId;
             return;
         }
 
         saveManager.ObtainEpochOverride(DefectEpochId, EpochState.Revealed);
         saveManager.SaveProgressFile();
-        _unlockAttempted = true;
+        _unlockCheckedProfileId = currentProfileId;
         MainFile.Logger.Info("Auto-unlocked Defect by revealing Defect1Epoch.");
     }
 
