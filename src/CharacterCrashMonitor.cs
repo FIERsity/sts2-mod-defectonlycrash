@@ -3,7 +3,6 @@ using System.Reflection;
 using Godot;
 using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Players;
-using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Characters;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Runs;
@@ -17,8 +16,6 @@ public partial class CharacterCrashMonitor : Node
 {
     private static readonly FieldInfo RunStateField = typeof(NRun).GetField("_state", BindingFlags.Instance | BindingFlags.NonPublic);
     private static readonly string DefectEpochId = EpochModel.GetId<Defect1Epoch>();
-    private static readonly ModelId DefectCharacterId = ModelDb.Character<Defect>().Id;
-
     private bool _unlockAttempted;
     private bool _hasTriggered;
 
@@ -93,18 +90,16 @@ public partial class CharacterCrashMonitor : Node
         }
 
         bool defectRevealed = saveManager.Progress.Epochs.Any(epoch => epoch.Id == DefectEpochId && epoch.State >= EpochState.Revealed);
-        bool pendingUnlockQueued = saveManager.Progress.PendingCharacterUnlock == DefectCharacterId;
-        if (defectRevealed && pendingUnlockQueued)
+        if (defectRevealed)
         {
             _unlockAttempted = true;
             return;
         }
 
         saveManager.ObtainEpochOverride(DefectEpochId, EpochState.Revealed);
-        saveManager.Progress.PendingCharacterUnlock = DefectCharacterId;
         saveManager.SaveProgressFile();
         _unlockAttempted = true;
-        MainFile.Logger.Info("Auto-unlocked Defect by revealing Defect1Epoch and queueing the character unlock.");
+        MainFile.Logger.Info("Auto-unlocked Defect by revealing Defect1Epoch.");
     }
 
     private static bool IsSaveManagerReady(SaveManager saveManager)
