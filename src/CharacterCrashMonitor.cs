@@ -3,6 +3,7 @@ using System.Reflection;
 using Godot;
 using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Players;
+using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Characters;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Runs;
@@ -16,6 +17,7 @@ public partial class CharacterCrashMonitor : Node
 {
     private static readonly FieldInfo RunStateField = typeof(NRun).GetField("_state", BindingFlags.Instance | BindingFlags.NonPublic);
     private static readonly string DefectEpochId = EpochModel.GetId<Defect1Epoch>();
+    private static readonly ModelId DefectCharacterId = ModelDb.Character<Defect>().Id;
     private bool _unlockAttempted;
     private bool _hasTriggered;
 
@@ -92,6 +94,7 @@ public partial class CharacterCrashMonitor : Node
         bool defectRevealed = saveManager.Progress.Epochs.Any(epoch => epoch.Id == DefectEpochId && epoch.State >= EpochState.Revealed);
         if (defectRevealed)
         {
+            ClearStalePendingUnlock(saveManager);
             _unlockAttempted = true;
             return;
         }
@@ -100,6 +103,18 @@ public partial class CharacterCrashMonitor : Node
         saveManager.SaveProgressFile();
         _unlockAttempted = true;
         MainFile.Logger.Info("Auto-unlocked Defect by revealing Defect1Epoch.");
+    }
+
+    private static void ClearStalePendingUnlock(SaveManager saveManager)
+    {
+        if (saveManager.Progress.PendingCharacterUnlock != DefectCharacterId)
+        {
+            return;
+        }
+
+        saveManager.Progress.PendingCharacterUnlock = ModelId.none;
+        saveManager.SaveProgressFile();
+        MainFile.Logger.Info("Cleared stale Defect unlock animation flag from save data.");
     }
 
     private static bool IsSaveManagerReady(SaveManager saveManager)
