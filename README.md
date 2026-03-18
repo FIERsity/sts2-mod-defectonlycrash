@@ -81,7 +81,7 @@ Windows 上试用了它，非常欢迎反馈结果。
 
 - `DefectOnlyCrash.dll`
 - `DefectOnlyCrash.pck`
-- `mod_manifest.json`
+- `DefectOnlyCrash.json`
 - `mod_image.png`
 - `INSTALL.txt`
 

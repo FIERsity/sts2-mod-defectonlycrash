@@ -23,7 +23,7 @@
 
     <ItemGroup>
         <None Include="INSTALL.txt" />
-        <None Include="mod_manifest.json" />
+        <None Include="$(AssemblyName).json" />
         <None Include="project.godot" />
         <None Include="README.md" />
         <None Include="assets/**" />
@@ -33,7 +33,7 @@
         <MakeDir Directories="$(PackageOutputDir)" />
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PackageOutputDir)" />
         <Copy SourceFiles="INSTALL.txt" DestinationFiles="$(PackageOutputDir)/INSTALL.txt" />
-        <Copy SourceFiles="mod_manifest.json" DestinationFiles="$(PackageOutputDir)/mod_manifest.json" />
+        <Copy SourceFiles="$(AssemblyName).json" DestinationFiles="$(PackageOutputDir)/$(AssemblyName).json" />
         <Copy SourceFiles="assets/mod_image.png" DestinationFiles="$(PackageOutputDir)/mod_image.png" Condition="Exists('assets/mod_image.png')" />
     </Target>
 
@@ -49,6 +49,7 @@
     </Target>
 
     <Target Name="CleanPackageArtifacts" AfterTargets="Publish">
+        <Delete Files="$(PackageOutputDir)/mod_manifest.json" Condition="Exists('$(PackageOutputDir)/mod_manifest.json')" />
         <Delete Files="$(PackageOutputDir)/mod_image.png.import" Condition="Exists('$(PackageOutputDir)/mod_image.png.import')" />
     </Target>
 </Project>
