@@ -19,7 +19,7 @@ public partial class CharacterCrashMonitor : Node
     private static readonly string DefectEpochId = EpochModel.GetId<Defect1Epoch>();
     private static readonly ModelId DefectCharacterId = ModelDb.Character<Defect>().Id;
     private bool _hasTriggered;
-    private int? _unlockCheckedProfileId;
+    private string _unlockCheckedSaveKey;
 
     public override void _Ready()
     {
@@ -86,7 +86,8 @@ public partial class CharacterCrashMonitor : Node
         }
 
         int currentProfileId = saveManager.CurrentProfileId;
-        if (_unlockCheckedProfileId == currentProfileId)
+        string currentSaveKey = $"{currentProfileId}:{saveManager.Progress.UniqueId}";
+        if (_unlockCheckedSaveKey == currentSaveKey)
         {
             return;
         }
@@ -95,13 +96,13 @@ public partial class CharacterCrashMonitor : Node
         if (defectRevealed)
         {
             ClearStalePendingUnlock(saveManager);
-            _unlockCheckedProfileId = currentProfileId;
+            _unlockCheckedSaveKey = currentSaveKey;
             return;
         }
 
         saveManager.ObtainEpochOverride(DefectEpochId, EpochState.Revealed);
         saveManager.SaveProgressFile();
-        _unlockCheckedProfileId = currentProfileId;
+        _unlockCheckedSaveKey = currentSaveKey;
         MainFile.Logger.Info("Auto-unlocked Defect by revealing Defect1Epoch.");
     }
 
